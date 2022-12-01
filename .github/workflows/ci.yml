@@ -24,4 +24,4 @@ jobs:
           velociraptor-version: 1.5.0
 
       - name: CI
-        run: vr ci
+        run: vr test
