@@ -16,12 +16,12 @@ jobs:
       - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.16.1
+          deno-version: v1.28.2
 
       - name: Setup Velociraptor
         uses: jurassiscripts/setup-velociraptor@v1
         with:
-          velociraptor-version: 1.3.0
+          velociraptor-version: 1.5.0
 
       - name: CI
         run: vr ci
