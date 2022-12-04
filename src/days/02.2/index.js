@@ -1,53 +1,35 @@
 import _ from 'lodash';
-import { readRelativeInput } from '@/common/file.js';
+import * as path from 'https://deno.land/std@0.101.0/path/mod.ts';
+
+const readRelativeInput = (importUrl, inputFile) => {
+  const dirname = path.dirname(path.fromFileUrl(importUrl));
+  const filePath = path.join(dirname, 'data', inputFile);
+  return Deno.readTextFileSync(filePath);
+};
 
 const readInput = (fileName) => readRelativeInput(import.meta.url, fileName);
 
-const scoreTheirMove = (myMove) => {
-  return myMove.charCodeAt(0) - 64;
-};
+const RPS = ['R', 'P', 'S'];
 
-const scoreResult = (theirMove, myMove) => {
-  if (myMove - theirMove === 0) {
-    return 3;
-  }
-  if ([1, -2].includes(myMove - theirMove)) {
-    return 6;
-  } else if ([-1, 2].includes(myMove - theirMove)) {
-    return 0;
-  }
-  throw new Error(`never happens myMove: ${myMove} theirMove: ${theirMove} res: ${myMove - theirMove}`);
-};
-
-const calculateRequiredScore = (requiredOutcome) => {
-  if (requiredOutcome === 'X') {
-    return 0;
-  } else if (requiredOutcome === 'Y') {
-    return 3;
-  } else {
-    return 6;
-  }
-};
-
-const calculateMyMoveScore = (theirMoveScore, requiredOutcome) => {
-  const requiredScore = calculateRequiredScore(requiredOutcome);
-  for (const myScore of [1, 2, 3]) {
-    if (scoreResult(theirMoveScore, myScore) === requiredScore) {
-      return myScore;
-    }
-  }
-};
-
-const scoreMove = ([theirMove, myMove]) => {
-  const theirMoveScore = scoreTheirMove(theirMove);
-  const myMoveScore = calculateMyMoveScore(theirMoveScore, myMove);
-
-  return myMoveScore + scoreResult(theirMoveScore, myMoveScore);
+const getScore = (c1, c2) => {
+  const [s1, s2] = [RPS.indexOf(c1), RPS.indexOf(c2)];
+  const diff = Math.abs(s1 - s2);
+  return diff === 0 ? 3 : (diff === 2 ? 1 : 2);
 };
 
 export const solve = (input) => {
-  const moves = input.trim().split('\n').map((line) => line.split(' '));
-  return _.chain(moves).map(scoreMove).sum().value();
+  const lines = input.split('\n');
+  let totalScore = 0;
+  for (let i = 0; i < lines.length - 1; i++) {
+    const [c1, c2] = [lines[i][0], lines[i][1]];
+    const score = getScore(c1, c2);
+    if (score === 3) totalScore += 3;
+    else if (score === 1 && c1 === c2) totalScore += 0;
+    else if (score === 1) totalScore += 6;
+    else if (score === 2 && c1 === c2) totalScore += 6;
+    else if (score === 2) totalScore += 1;
+  }
+  return totalScore;
 };
 
 console.log(solve(readInput('example1.txt')), '\n\n\n');
